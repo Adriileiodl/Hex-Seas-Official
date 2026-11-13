@@ -652,5 +652,191 @@
     });
   }
   </script>
+
+<!-- ===== ROLETA HEX SEAS ===== -->
+<script>
+(function(){
+  /* 1) COLE AQUI a URL do seu Firebase Realtime Database (sem barra no final) */
+  var DB = "https://hexseas-b1def-default-rtdb.firebaseio.com";   // ex: https://hexseas-default-rtdb.firebaseio.com
+  /* 2) Data do sorteio: sábado 14/11/2026 às 14:00 (horário de Brasília) */
+  var WHEN = new Date("2026-11-14T14:00:00-03:00").getTime();
+
+  DB = DB.replace(/\/+$/,"");
+  var TX = {
+    pt:{t:"Roleta do Hex Seas",sub:"Entre com seu nome do Discord. O sorteio gira sozinho no sábado, 14/11, às 14:00.",join:"Entrar na roleta",ph:"Seu nome do Discord",send:"Enviar",cancel:"Cancelar",
+        count:"participantes",left:"Gira em",d:"d",h:"h",m:"min",s:"s",spin:"Girando...",win:"VENCEDOR",none:"Ninguém entrou na roleta.",ok:"Você entrou na roleta! Boa sorte 🍀",dup:"Esse nome já está na roleta (ou as inscrições fecharam).",bad:"Digite um nome de 2 a 32 letras.",err:"Erro de conexão. Tente de novo.",closed:"Inscrições encerradas",empty:"Seja o primeiro!",cfg:"Configure a URL do Firebase no código.",wait:"Enviando...",herob:"Roleta"},
+    en:{t:"Hex Seas Roulette",sub:"Enter your Discord name. The draw spins automatically on Saturday, Nov 14, at 2:00 PM.",join:"Join the roulette",ph:"Your Discord name",send:"Submit",cancel:"Cancel",
+        count:"entries",left:"Spins in",d:"d",h:"h",m:"min",s:"s",spin:"Spinning...",win:"WINNER",none:"Nobody joined the roulette.",ok:"You're in the roulette! Good luck 🍀",dup:"That name is already in (or entries are closed).",bad:"Type a name with 2 to 32 characters.",err:"Connection error. Try again.",closed:"Entries closed",empty:"Be the first!",cfg:"Set the Firebase URL in the code.",wait:"Sending...",herob:"Roulette"},
+    es:{t:"Ruleta de Hex Seas",sub:"Ingresa tu nombre de Discord. El sorteo gira solo el sábado 14/11 a las 14:00.",join:"Entrar a la ruleta",ph:"Tu nombre de Discord",send:"Enviar",cancel:"Cancelar",
+        count:"participantes",left:"Gira en",d:"d",h:"h",m:"min",s:"s",spin:"Girando...",win:"GANADOR",none:"Nadie entró a la ruleta.",ok:"¡Entraste a la ruleta! Suerte 🍀",dup:"Ese nombre ya está (o las inscripciones cerraron).",bad:"Escribe un nombre de 2 a 32 caracteres.",err:"Error de conexión. Inténtalo de nuevo.",closed:"Inscripciones cerradas",empty:"¡Sé el primero!",cfg:"Configura la URL de Firebase en el código.",wait:"Enviando...",herob:"Ruleta"}
+  };
+  function L(){ var l=(document.documentElement.lang||"pt").slice(0,2); return TX[l]||TX.pt; }
+
+  /* ---------- CSS ---------- */
+  var st=document.createElement("style");
+  st.textContent=
+  ".rl-wrap{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}"+
+  ".rl-wheel{position:relative;width:min(440px,86vw);aspect-ratio:1;margin:0 auto}"+
+  ".rl-wheel::before{content:'';position:absolute;inset:-4%;border-radius:50%;background:radial-gradient(circle,rgba(255,46,147,.45),transparent 68%);filter:blur(28px)}"+
+  ".rl-wheel canvas{position:relative;width:100%;height:100%;border-radius:50%;border:4px solid var(--cyan);box-shadow:0 0 40px rgba(46,230,255,.35);transition:transform 8s cubic-bezier(.12,.7,.08,1)}"+
+  ".rl-ptr{position:absolute;left:50%;top:-14px;transform:translateX(-50%);width:34px;height:42px;z-index:3;background:var(--gold);clip-path:polygon(0 0,100% 0,50% 100%);filter:drop-shadow(0 0 8px var(--gold))}"+
+  ".rl-hub{position:absolute;left:50%;top:50%;width:64px;height:72px;transform:translate(-50%,-50%);z-index:2;display:flex;align-items:center;justify-content:center;font-size:1.6rem;background:linear-gradient(135deg,var(--cyan),var(--mag));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}"+
+  ".rl-side{text-align:left}.rl-side p{color:var(--muted);font-size:1.2rem;margin-bottom:18px}"+
+  ".rl-info{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}"+
+  ".rl-pill{padding:8px 20px;font-weight:700;letter-spacing:1px;color:var(--cyan);border:1px solid var(--cyan);background:rgba(46,230,255,.08);clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)}"+
+  ".rl-pill.g{color:var(--gold);border-color:var(--gold);background:rgba(255,200,97,.1)}"+
+  ".rl-form{display:none;gap:10px;flex-wrap:wrap;margin-top:6px}.rl-form.show{display:flex}"+
+  ".rl-form input{flex:1 1 220px;font:inherit;font-weight:600;color:#fff;padding:13px 18px;border:2px solid var(--vio);background:rgba(13,8,32,.9);border-radius:2px;outline:none}"+
+  ".rl-form input:focus{border-color:var(--cyan)}"+
+  ".rl-btn{font:inherit;cursor:pointer;border:none}"+
+  ".rl-msg{margin-top:12px;font-weight:700;min-height:1.4em;color:var(--gold)}"+
+  ".rl-win{display:none;margin-top:22px;padding:22px 24px;border:2px solid var(--gold);background:linear-gradient(135deg,rgba(255,200,97,.16),rgba(255,46,147,.14));clip-path:polygon(20px 0,100% 0,calc(100% - 20px) 100%,0 100%);text-align:center;box-shadow:0 0 40px rgba(255,200,97,.3)}"+
+  ".rl-win.show{display:block}.rl-win small{display:block;color:var(--gold);letter-spacing:6px;font-weight:700}"+
+  ".rl-win strong{display:block;font-family:'Pirata One',serif;font-weight:400;font-size:clamp(2.2rem,7vw,3.6rem);line-height:1.1;word-break:break-word;background:linear-gradient(90deg,var(--gold),var(--mag),var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent}"+
+  "@media(max-width:900px){.rl-wrap{grid-template-columns:1fr}.rl-side{text-align:center}.rl-info,.rl-form{justify-content:center}}";
+  document.head.appendChild(st);
+
+  /* ---------- HTML ---------- */
+  var sec=document.createElement("section");
+  sec.className="section"; sec.id="roleta"; sec.style.paddingTop="90px";
+  sec.innerHTML=
+   '<div class="head"><span class="num">⬡</span><h2 class="title" id="rlT"></h2></div>'+
+   '<div class="rl-wrap">'+
+     '<div class="rl-wheel"><div class="rl-ptr"></div><canvas id="rlC" width="800" height="800"></canvas><div class="rl-hub">⚓</div></div>'+
+     '<div class="rl-side">'+
+       '<p id="rlS"></p>'+
+       '<div class="rl-info"><span class="rl-pill" id="rlN"></span><span class="rl-pill g" id="rlCD"></span></div>'+
+       '<button class="btn rl-btn" id="rlJ"></button>'+
+       '<div class="rl-form" id="rlF"><input id="rlI" maxlength="32" autocomplete="off" /><button class="btn rl-btn" id="rlSend"></button><button class="btn ghost rl-btn" id="rlX"></button></div>'+
+       '<div class="rl-msg" id="rlM"></div>'+
+       '<div class="rl-win" id="rlW"><small id="rlWL"></small><strong id="rlWN"></strong></div>'+
+     '</div>'+
+   '</div>';
+  var hero=document.getElementById("home");
+  if(hero&&hero.parentNode) hero.parentNode.insertBefore(sec,hero.nextSibling); else document.body.appendChild(sec);
+
+  // link no menu + botão no hero
+  var ul=document.getElementById("links");
+  var li=document.createElement("li"); li.innerHTML='<a href="#roleta" id="rlNav"></a>'; if(ul) ul.insertBefore(li,ul.firstChild);
+  var btns=document.querySelector(".hero .btns");
+  var hb=document.createElement("a"); hb.className="btn"; hb.href="#roleta"; hb.id="rlHero"; hb.style.marginLeft="0"; if(btns) btns.appendChild(hb);
+
+  var $=function(i){return document.getElementById(i);};
+  var players=[], winner=null, spunNow=false, rot=0, finalizing=false;
+
+  function txt(){
+    var t=L();
+    $("rlT").textContent=t.t; $("rlS").textContent=t.sub; $("rlJ").textContent=t.join;
+    $("rlI").placeholder=t.ph; $("rlSend").textContent=t.send; $("rlX").textContent=t.cancel;
+    $("rlWL").textContent="👑 "+t.win; $("rlNav").textContent=t.herob; $("rlHero").textContent="🎡 "+t.join;
+    counts(); tick();
+  }
+  function counts(){ $("rlN").textContent="👥 "+players.length+" "+L().count; }
+
+  /* ---------- Roda ---------- */
+  var COL=["#ff2e93","#8b5cff","#2ee6ff","#ffc861","#c2186a","#5a35c9","#1aa9c2","#d99a2b"];
+  function draw(){
+    var c=$("rlC"), x=c.getContext("2d"), W=c.width, R=W/2, n=players.length;
+    x.clearRect(0,0,W,W);
+    if(!n){
+      var g=x.createRadialGradient(R,R,20,R,R,R); g.addColorStop(0,"#2a1470"); g.addColorStop(1,"#0b0620");
+      x.fillStyle=g; x.beginPath(); x.arc(R,R,R,0,7); x.fill();
+      x.fillStyle="#a79bc9"; x.font="48px 'Pirata One',serif"; x.textAlign="center"; x.fillText(L().empty,R,R+120);
+      return;
+    }
+    var a=2*Math.PI/n;
+    for(var i=0;i<n;i++){
+      var s=-Math.PI/2+i*a;
+      x.beginPath(); x.moveTo(R,R); x.arc(R,R,R-4,s,s+a); x.closePath();
+      x.fillStyle=COL[i%COL.length]; if(n>1&&n%COL.length===1&&i===n-1) x.fillStyle="#3b1a8f";
+      x.fill(); x.strokeStyle="rgba(5,3,15,.7)"; x.lineWidth=2; x.stroke();
+      var nm=players[i].name, fs=Math.max(10,Math.min(34,(2*Math.PI*R/n)*.5));
+      x.save(); x.translate(R,R); x.rotate(s+a/2); x.textAlign="right"; x.textBaseline="middle";
+      x.font="700 "+fs+"px Rajdhani,sans-serif"; x.fillStyle="#05030f";
+      var max=R-130; while(nm.length>3&&x.measureText(nm).width>max) nm=nm.slice(0,-2);
+      if(nm!==players[i].name) nm+="…";
+      x.fillText(nm,R-34,0); x.restore();
+    }
+  }
+
+  /* ---------- Rede ---------- */
+  function ok(){ return DB && DB.indexOf("COLE_AQUI")<0; }
+  function get(p){ return fetch(DB+"/"+p+".json").then(function(r){return r.json();}); }
+  function toList(o){
+    var a=[]; for(var k in (o||{})){ a.push({key:k,name:o[k].name,t:o[k].t||0}); }
+    a.sort(function(p,q){return p.t-q.t||(p.key<q.key?-1:1);}); return a;
+  }
+  function refresh(){
+    if(!ok()){ $("rlM").textContent=L().cfg; return Promise.resolve(); }
+    return Promise.all([get("participants"),get("winner")]).then(function(r){
+      players=toList(r[0]); counts();
+      if(r[1]&&r[1].name&&!winner){ winner=r[1]; showWinner(spunNow); }
+      if(!spunNow) draw();
+    }).catch(function(){});
+  }
+
+  /* ---------- Vencedor ---------- */
+  function showWinner(animate){
+    var i=-1; for(var k=0;k<players.length;k++) if(players[k].key===winner.key) i=k;
+    function reveal(){ $("rlWN").textContent=winner.name; $("rlW").classList.add("show"); $("rlCD").textContent="🏆 "+L().win; $("rlJ").style.display="none"; $("rlF").classList.remove("show"); }
+    if(animate&&i>=0){
+      var n=players.length, center=(i+.5)*360/n;
+      rot=360*7-center; $("rlC").style.transform="rotate("+rot+"deg)";
+      $("rlCD").textContent="🎡 "+L().spin;
+      setTimeout(reveal,8300);
+    } else {
+      if(i>=0){ var n2=players.length; $("rlC").style.transition="none"; $("rlC").style.transform="rotate("+(-(i+.5)*360/n2)+"deg)"; }
+      reveal();
+    }
+  }
+  function finalize(){
+    if(finalizing||winner||!ok()) return; finalizing=true;
+    get("participants").then(function(p){
+      players=toList(p); counts(); draw();
+      if(!players.length){ $("rlCD").textContent=L().none; return; }
+      var w=players[Math.floor(Math.random()*players.length)];
+      var body=JSON.stringify({key:w.key,name:w.name,t:Date.now()});
+      return fetch(DB+"/winner.json",{method:"PUT",body:body}).then(function(r){
+        return get("winner").then(function(real){   // a regra do banco só aceita o 1º vencedor
+          if(real&&real.name){ spunNow=true; winner=real; showWinner(true); }
+        });
+      });
+    }).catch(function(){ finalizing=false; });
+  }
+
+  /* ---------- Contagem ---------- */
+  function tick(){
+    if(winner) return;
+    var t=L(), d=WHEN-Date.now();
+    if(d<=0){ $("rlCD").textContent="🎡 "+t.spin; $("rlJ").style.display="none"; $("rlF").classList.remove("show"); finalize(); return; }
+    var D=Math.floor(d/864e5),H=Math.floor(d%864e5/36e5),M=Math.floor(d%36e5/6e4),S=Math.floor(d%6e4/1e3);
+    $("rlCD").textContent="⏳ "+t.left+" "+(D?D+t.d+" ":"")+H+t.h+" "+M+t.m+" "+S+t.s;
+  }
+
+  /* ---------- Inscrição ---------- */
+  function keyOf(n){ return n.toLowerCase().replace(/[^a-z0-9_]/g,"_").slice(0,40)||"x"; }
+  $("rlJ").addEventListener("click",function(){ $("rlF").classList.add("show"); $("rlI").focus(); });
+  $("rlX").addEventListener("click",function(){ $("rlF").classList.remove("show"); $("rlM").textContent=""; });
+  $("rlI").addEventListener("keydown",function(e){ if(e.key==="Enter") $("rlSend").click(); });
+  $("rlSend").addEventListener("click",function(){
+    var t=L(), name=$("rlI").value.replace(/\s+/g," ").trim();
+    if(!ok()){ $("rlM").textContent=t.cfg; return; }
+    if(Date.now()>=WHEN){ $("rlM").textContent=t.closed; return; }
+    if(name.length<2||name.length>32){ $("rlM").textContent=t.bad; return; }
+    $("rlM").textContent=t.wait;
+    fetch(DB+"/participants/"+keyOf(name)+".json",{method:"PUT",body:JSON.stringify({name:name,t:Date.now()})})
+      .then(function(r){
+        if(r.ok){ $("rlM").textContent=t.ok; $("rlI").value=""; $("rlF").classList.remove("show"); return refresh(); }
+        $("rlM").textContent=t.dup;
+      }).catch(function(){ $("rlM").textContent=t.err; });
+  });
+
+  new MutationObserver(txt).observe(document.documentElement,{attributes:true,attributeFilter:["lang"]});
+  txt(); draw(); refresh();
+  setInterval(tick,1000);
+  setInterval(function(){ if(!winner) refresh(); },15000);
+})();
+</script>
+
 </body>
 </html>
