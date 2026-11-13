@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hex Seas — Official Site</title>
+  <meta name="description" content="Hex Seas — open-world pirate adventure on Roblox. Coming soon." />
+  <meta name="theme-color" content="#05030f" />
+  <meta property="og:title" content="Hex Seas — Official Site" />
+  <meta property="og:description" content="Open-world pirate adventure on Roblox. Coming soon." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⬡%3C/text%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#05030f; --panel:#0d0820; --mag:#ff2e93; --cyan:#2ee6ff; --vio:#8b5cff; --gold:#ffc861;
+      --text:#f2eaff; --muted:#a79bc9; --line:rgba(139,92,255,.38);
+      --cut:22px;
+    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth;scroll-padding-top:90px}
+    body{font-family:"Rajdhani",system-ui,sans-serif;font-size:1.1rem;font-weight:500;color:var(--text);background:var(--bg);overflow-x:hidden;line-height:1.5}
+    a{color:inherit}
+    h1,h2,h3,.pirata{font-family:"Pirata One",serif;font-weight:400;letter-spacing:1px}
+    :focus-visible{outline:3px solid var(--cyan);outline-offset:3px}
+    [hidden]{display:none!important}
+    .hexclip{clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+    .cut{clip-path:polygon(var(--cut) 0,100% 0,100% calc(100% - var(--cut)),calc(100% - var(--cut)) 100%,0 100%,0 var(--cut))}
+
+    /* ===== BACKGROUND FX ===== */
+    .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.9;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='100' viewBox='0 0 56 100'%3E%3Cpath d='M28 66L0 50L0 16L28 0L56 16L56 50L28 66L28 100' fill='none' stroke='%238b5cff' stroke-opacity='.16'/%3E%3Cpath d='M28 0L28 34L0 50L0 84L28 100L56 84L56 50L28 34' fill='none' stroke='%238b5cff' stroke-opacity='.16'/%3E%3C/svg%3E");
+      -webkit-mask-image:radial-gradient(ellipse at 50% 30%,#000 20%,transparent 80%);mask-image:radial-gradient(ellipse at 50% 30%,#000 20%,transparent 80%);
+      animation:drift 40s linear infinite}
+    @keyframes drift{to{background-position:56px 100px}}
+    .orb{position:fixed;border-radius:50%;filter:blur(90px);pointer-events:none;z-index:0;opacity:.5}
+    .o1{width:420px;height:420px;background:var(--mag);top:-120px;left:-120px;opacity:.28;animation:float1 16s ease-in-out infinite}
+    .o2{width:480px;height:480px;background:var(--vio);bottom:-160px;right:-140px;opacity:.3;animation:float1 20s ease-in-out infinite reverse}
+    @keyframes float1{50%{transform:translate(60px,50px)}}
+    .parts{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+    .hp{position:absolute;bottom:-60px;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);animation:up linear infinite}
+    @keyframes up{to{transform:translateY(-115vh) rotate(240deg);opacity:0}}
+    .cur{position:fixed;left:0;top:0;width:22px;height:25px;z-index:300;pointer-events:none;background:var(--cyan);opacity:.0;mix-blend-mode:screen;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);transition:opacity .3s,width .2s,height .2s}
+    .progress{position:fixed;top:0;left:0;height:3px;width:0;z-index:200;background:linear-gradient(90deg,var(--cyan),var(--vio),var(--mag))}
+
+    /* ===== LOADER ===== */
+    .loader{position:fixed;inset:0;z-index:400;display:flex;align-items:center;justify-content:center;background:var(--bg);transition:opacity .7s,visibility .7s}
+    .loader.hide{opacity:0;visibility:hidden}
+    .loader .lh{width:110px;height:124px;display:flex;align-items:center;justify-content:center;font-size:2.6rem;background:linear-gradient(135deg,var(--cyan),var(--vio),var(--mag));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);animation:spin 2.4s linear infinite}
+    .loader .lh span{display:flex;align-items:center;justify-content:center;width:90%;height:90%;background:var(--bg);clip-path:inherit;animation:spin 2.4s linear infinite reverse}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* ===== NAV (floating pill) ===== */
+    .nav{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:150;width:min(1120px,calc(100% - 24px));display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 10px 8px 22px;border-radius:60px;background:rgba(13,8,32,.72);backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 8px 40px rgba(139,92,255,.2);transition:.3s}
+    .nav.small{top:8px;background:rgba(13,8,32,.92)}
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:"Pirata One",serif;font-size:1.7rem;letter-spacing:2px;line-height:1}
+    .brand i{display:inline-flex;align-items:center;justify-content:center;width:30px;height:34px;font-style:normal;font-size:1rem;background:linear-gradient(135deg,var(--cyan),var(--mag));color:#05030f;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+    .brand b{font-weight:400;color:var(--mag)}
+    .links{display:flex;list-style:none;gap:2px}
+    .links a{display:block;padding:8px 14px;border-radius:30px;text-decoration:none;font-size:1rem;font-weight:600;letter-spacing:.5px;color:var(--muted);transition:.25s}
+    .links a:hover,.links a.active{color:#fff;background:linear-gradient(90deg,rgba(139,92,255,.5),rgba(255,46,147,.45))}
+    .nav-r{display:flex;gap:8px}
+    .btn-lang,.burger{font:inherit;font-weight:700;color:#fff;cursor:pointer;padding:8px 16px;border-radius:30px;border:1px solid var(--cyan);background:rgba(46,230,255,.08);transition:.25s}
+    .btn-lang:hover{background:var(--cyan);color:#05030f}
+    .burger{display:none;padding:8px 14px}
+
+    /* ===== HERO (split layout) ===== */
+    .hero{position:relative;z-index:2;min-height:100svh;max-width:1240px;margin:0 auto;padding:130px 24px 70px;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:30px}
+    .hero-text{animation:in 1.1s .2s ease both}
+    @keyframes in{from{opacity:0;transform:translateY(30px)}}
+    .tag{display:inline-flex;align-items:center;gap:10px;padding:6px 18px 6px 8px;border-radius:40px;margin-bottom:20px;border:1px solid var(--line);background:rgba(139,92,255,.12);color:var(--cyan);font-weight:600;letter-spacing:1px}
+    .tag::before{content:"";width:12px;height:12px;background:var(--mag);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);animation:blinkdot 1.6s infinite}
+    @keyframes blinkdot{50%{opacity:.25}}
+    .logo{position:relative;display:inline-block;font-family:"Pirata One",serif;font-weight:400;font-size:clamp(4.6rem,15vw,9.6rem);line-height:.88;letter-spacing:4px;color:#fff;text-shadow:0 0 38px rgba(255,46,147,.65),0 4px 0 #2a0b5e}
+    .logo em{font-style:normal;color:var(--cyan);text-shadow:0 0 34px rgba(46,230,255,.7),0 4px 0 #0a2f5e}
+    .logo::before,.logo::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;opacity:0;pointer-events:none}
+    .logo::before{color:var(--cyan);animation:gl1 5s infinite steps(1)}
+    .logo::after{color:var(--mag);animation:gl2 5s infinite steps(1)}
+    @keyframes gl1{0%,91%,100%{opacity:0}92%{opacity:.85;transform:translate(-5px,2px);clip-path:inset(10% 0 60% 0)}94%{opacity:.85;transform:translate(4px,-2px);clip-path:inset(55% 0 20% 0)}96%{opacity:0}}
+    @keyframes gl2{0%,92%,100%{opacity:0}93%{opacity:.85;transform:translate(5px,-2px);clip-path:inset(40% 0 35% 0)}95%{opacity:.85;transform:translate(-4px,2px);clip-path:inset(5% 0 75% 0)}97%{opacity:0}}
+    .rot-wrap{margin:18px 0 6px;font-family:"Pirata One",serif;font-size:clamp(1.5rem,4.5vw,2.3rem);color:var(--gold);min-height:1.3em}
+    .rot-wrap::before{content:"⬡ ";color:var(--mag)}
+    #rot{display:inline-block;transition:opacity .35s,transform .35s}
+    #rot.out{opacity:0;transform:translateY(-10px)}
+    .hero-sub{max-width:520px;color:var(--muted);font-size:1.2rem;margin-bottom:26px}
+    .btns{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .btn{position:relative;display:inline-block;padding:14px 34px;text-decoration:none;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#05030f;background:linear-gradient(90deg,var(--cyan),var(--vio) 55%,var(--mag));clip-path:polygon(16px 0,100% 0,calc(100% - 16px) 100%,0 100%);transition:.3s}
+    .btn:hover{transform:translateY(-4px);filter:brightness(1.2) drop-shadow(0 8px 14px rgba(255,46,147,.5))}
+    .btn.ghost{background:none;color:#fff;box-shadow:inset 0 0 0 2px var(--vio)}
+    .btn.ghost{clip-path:none;border:2px solid var(--vio);border-radius:2px;transform:skewX(-14deg)}
+    .btn.ghost:hover{transform:skewX(-14deg) translateY(-4px);background:rgba(139,92,255,.25)}
+    .soon-pill{margin-top:26px;display:inline-block;padding:10px 26px;border:2px solid var(--gold);color:var(--gold);font-family:"Pirata One",serif;font-size:1.5rem;letter-spacing:4px;animation:glowp 2.4s ease-in-out infinite;clip-path:polygon(14px 0,100% 0,calc(100% - 14px) 100%,0 100%)}
+    @keyframes glowp{50%{background:rgba(255,200,97,.18);text-shadow:0 0 18px var(--gold)}}
+
+    .portal{position:relative;width:min(92vw,540px);aspect-ratio:1;margin:0 auto;perspective:1000px;animation:in 1.2s .45s ease both}
+    .portal::before{content:"";position:absolute;inset:8%;background:radial-gradient(circle,rgba(255,46,147,.55),transparent 68%);filter:blur(40px);z-index:0}
+    .ring{position:absolute;inset:-7%;width:114%;height:114%;z-index:0}
+    .ring.r1{animation:spin 70s linear infinite}.ring.r2{animation:spin 50s linear infinite reverse}
+    .tilt{position:absolute;inset:0;z-index:1;transition:transform .15s ease-out;transform-style:preserve-3d;animation:hov 6s ease-in-out infinite}
+    @keyframes hov{50%{translate:0 -12px}}
+    .tilt svg{width:100%;height:100%;overflow:visible}
+    .wv1{animation:wv 6s linear infinite}.wv2{animation:wv 9s linear infinite reverse}
+    @keyframes wv{to{transform:translateX(-200px)}}
+    .ship2{animation:bob 4s ease-in-out infinite;transform-origin:center bottom}
+    @keyframes bob{50%{transform:translateY(8px) rotate(1.6deg)}}
+    .tent{animation:tn 6s ease-in-out infinite;transform-origin:bottom right}
+    @keyframes tn{50%{transform:rotate(-3deg)}}
+    .edge-run{stroke-dasharray:170 1590;animation:run 6s linear infinite}
+    @keyframes run{to{stroke-dashoffset:-1760}}
+    .star{animation:tw 3s ease-in-out infinite}.star:nth-child(2n){animation-delay:1s}.star:nth-child(3n){animation-delay:2s}
+    @keyframes tw{50%{opacity:.2}}
+
+    /* ===== TICKER ===== */
+    .ticker{position:relative;z-index:3;overflow:hidden;border-block:2px solid var(--mag);background:linear-gradient(90deg,#1b0842,#3a0b52,#1b0842);transform:rotate(-1.2deg);margin:10px -10px 0;box-shadow:0 0 40px rgba(255,46,147,.35)}
+    .track{display:flex;width:max-content;animation:mq 26s linear infinite}
+    .track span{padding:12px 28px;font-family:"Pirata One",serif;font-size:1.6rem;letter-spacing:5px;white-space:nowrap;color:#fff}
+    .track span:nth-child(even){color:var(--cyan)}
+    @keyframes mq{to{transform:translateX(-50%)}}
+
+    /* ===== SECTIONS ===== */
+    .section{position:relative;z-index:2;max-width:1180px;margin:0 auto;padding:110px 24px 10px}
+    .head{display:flex;align-items:flex-end;gap:18px;margin-bottom:38px}
+    .num{font-family:"Pirata One",serif;font-size:clamp(4rem,12vw,7rem);line-height:.8;color:transparent;-webkit-text-stroke:2px var(--vio);opacity:.65}
+    .title{font-size:clamp(2.2rem,6.5vw,4rem);line-height:1;color:#fff;text-shadow:0 0 30px rgba(139,92,255,.6)}
+    .title::after{content:"";display:block;width:120px;height:6px;margin-top:12px;background:repeating-linear-gradient(90deg,var(--mag) 0 18px,transparent 18px 26px);transform:skewX(-30deg)}
+    .lead{max-width:680px;color:var(--muted);font-size:1.2rem;margin:-14px 0 34px}
+
+    .reveal{opacity:0;transform:translateY(46px) scale(.97);filter:blur(6px);transition:opacity .8s,transform .8s,filter .8s}
+    .reveal.in{opacity:1;transform:none;filter:none}
+
+    /* about */
+    .about{display:grid;grid-template-columns:1.2fr .8fr;gap:40px;align-items:center}
+    .about p{font-size:1.3rem;color:#ddd2f5}
+    .chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+    .chip{padding:7px 20px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-size:.9rem;color:var(--cyan);border:1px solid var(--cyan);background:rgba(46,230,255,.08);clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%)}
+    .seal{width:min(300px,70vw);margin:0 auto}.seal svg{width:100%;overflow:visible}
+    .seal .sr{transform-origin:150px 150px;animation:spin 40s linear infinite}
+
+    /* cards */
+    .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:26px}
+    .card{position:relative;transition:transform .25s,filter .3s}
+    .card:hover{transform:translateY(-8px);filter:drop-shadow(0 12px 22px rgba(255,46,147,.38))}
+    .card .edge{padding:2px;background:linear-gradient(135deg,var(--cyan),var(--vio),var(--mag))}
+    .card .in{--cut:20px;padding:32px 26px 28px;background:linear-gradient(160deg,#150b33,#0b0620)}
+    .card .n{position:absolute;right:26px;top:10px;font-family:"Pirata One",serif;font-size:3.4rem;color:transparent;-webkit-text-stroke:1px rgba(139,92,255,.55)}
+    .card .ic{width:64px;height:72px;display:flex;align-items:center;justify-content:center;font-size:1.9rem;margin-bottom:16px;background:linear-gradient(135deg,rgba(46,230,255,.3),rgba(255,46,147,.3));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);transition:transform .5s}
+    .card:hover .ic{transform:rotate(60deg) scale(1.1)}.card:hover .ic span{display:inline-block;transform:rotate(-60deg);transition:.5s}
+    .card h3{font-size:1.7rem;color:var(--cyan);margin-bottom:6px}
+    .card p{color:var(--muted);font-size:1.08rem}
+
+    /* coming soon */
+    .soon-line{display:block;margin-top:30px;text-align:center;font-family:"Pirata One",serif;font-size:clamp(1.8rem,6vw,2.8rem);letter-spacing:6px;color:var(--gold);text-shadow:0 0 25px rgba(255,200,97,.55);animation:fl 2.4s ease-in-out infinite}
+    @keyframes fl{50%{opacity:.5}}
+    .honey{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+    .hx{width:104px;height:120px;display:flex;align-items:center;justify-content:center;font-size:2.3rem;position:relative;filter:grayscale(.7);background:linear-gradient(160deg,#2a1470,#120838);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);overflow:hidden}
+    .hx:nth-child(2n){margin-top:30px}
+    .hx::after{content:"?";position:absolute;right:20px;bottom:14px;font-family:"Pirata One";font-size:1.2rem;color:var(--gold)}
+    .hx::before{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.22) 50%,transparent 65%);transform:translateX(-120%);animation:sh 3.4s infinite}
+    .hx:nth-child(2n)::before{animation-delay:.8s}.hx:nth-child(3n)::before{animation-delay:1.6s}
+    @keyframes sh{60%,100%{transform:translateX(120%)}}
+
+    .radar-wrap{display:flex;justify-content:center}
+    .radar{position:relative;width:min(320px,80vw);aspect-ratio:1;border-radius:50%;border:2px solid var(--cyan);overflow:hidden;background:repeating-radial-gradient(circle,transparent 0 38px,rgba(46,230,255,.28) 39px 40px),radial-gradient(circle,#06243a,#030a18);box-shadow:0 0 50px rgba(46,230,255,.35),inset 0 0 40px rgba(46,230,255,.25)}
+    .radar::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 49.6%,rgba(46,230,255,.3) 50%,transparent 50.4%),linear-gradient(0deg,transparent 49.6%,rgba(46,230,255,.3) 50%,transparent 50.4%)}
+    .radar::after{content:"";position:absolute;inset:0;background:conic-gradient(from 0deg,rgba(46,230,255,.7),transparent 25%);animation:spin 4s linear infinite}
+    .blip{position:absolute;width:12px;height:12px;background:var(--mag);clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);animation:bl 4s infinite;z-index:2}
+    @keyframes bl{0%,100%{opacity:.15;transform:scale(.6)}20%{opacity:1;transform:scale(1.5)}}
+    .scan{text-align:center;margin-top:16px;color:var(--cyan);letter-spacing:3px;text-transform:uppercase;font-weight:700}
+
+    .term{max-width:680px;margin:0 auto;border:1px solid var(--cyan);background:rgba(2,8,20,.85);box-shadow:0 0 40px rgba(46,230,255,.2);font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.98rem}
+    .term .bar{display:flex;gap:7px;padding:10px 14px;background:rgba(46,230,255,.12);border-bottom:1px solid var(--cyan)}
+    .term .bar i{width:11px;height:11px;border-radius:50%;background:var(--mag)}.term .bar i:nth-child(2){background:var(--gold)}.term .bar i:nth-child(3){background:var(--cyan)}
+    .term .body{padding:22px 22px 26px;color:#9cf6ff;line-height:2}
+    .term .lock{color:var(--mag)}.term .st{color:var(--gold)}
+    .term .cursor{display:inline-block;width:10px;height:1.1em;background:var(--cyan);vertical-align:text-bottom;animation:cb 1s steps(1) infinite}
+    @keyframes cb{50%{opacity:0}}
+
+    .nlist{display:grid;gap:14px;max-width:860px;margin:0 auto}
+    .nrow{display:flex;align-items:center;gap:20px;padding:14px 20px;border:1px solid var(--line);background:rgba(139,92,255,.07);clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px))}
+    .nth{width:70px;height:80px;flex:none;background:linear-gradient(110deg,rgba(255,255,255,.05) 30%,rgba(255,255,255,.2) 50%,rgba(255,255,255,.05) 70%);background-size:300% 100%;animation:skl 2s linear infinite;clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%)}
+    @keyframes skl{to{background-position:-100% 0}}
+    .nbars{flex:1;display:grid;gap:10px}.nbars i{display:block;height:12px;border-radius:6px;background:rgba(255,255,255,.1)}.nbars i:last-child{width:60%}
+    .ntag{padding:4px 14px;font-weight:700;letter-spacing:2px;font-size:.78rem;color:#05030f;background:var(--gold);clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+
+    .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px;counter-reset:s}
+    .st{position:relative;padding:26px 20px 22px;border:1px solid var(--line);background:rgba(139,92,255,.07);clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))}
+    .st::before{counter-increment:s;content:"0" counter(s);display:block;font-family:"Pirata One",serif;font-size:2.4rem;line-height:1;color:var(--vio);margin-bottom:8px}
+    .st small{display:block;font-weight:700;letter-spacing:2px;font-size:.8rem;color:var(--gold);margin-bottom:4px}
+    .st.done{border-color:var(--cyan);background:rgba(46,230,255,.1)}.st.done::before{color:var(--cyan)}.st.done small{color:var(--cyan)}
+
+    .soc{display:flex;flex-wrap:wrap;gap:16px}
+    .s{flex:1 1 240px;display:flex;align-items:center;gap:14px;padding:18px 24px;font-weight:700;font-size:1.2rem;border:1px solid var(--line);background:rgba(139,92,255,.08);clip-path:polygon(18px 0,100% 0,calc(100% - 18px) 100%,0 100%)}
+    .s small{margin-left:auto;padding:3px 14px;background:var(--gold);color:#05030f;font-size:.75rem;letter-spacing:2px}
+
+    a.s{text-decoration:none;color:var(--text);transition:.25s}
+    a.s.live{border-color:var(--cyan);background:rgba(46,230,255,.1)}
+    a.s.live small{background:var(--cyan)}
+    a.s.live:hover{transform:translateY(-5px);filter:drop-shadow(0 8px 16px rgba(46,230,255,.45))}
+    .nodate{margin-top:12px;color:var(--muted);font-weight:600;letter-spacing:1px}
+    .owner{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px}
+    .badge{position:relative;width:150px;height:150px;display:flex;align-items:center;justify-content:center;margin-bottom:8px}
+    .badge svg{position:absolute;inset:0;width:100%;height:100%;animation:spin 24s linear infinite}
+    .badge b{position:relative;width:92px;height:104px;display:flex;align-items:center;justify-content:center;font-size:2.4rem;background:linear-gradient(135deg,var(--gold),var(--mag));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);box-shadow:0 0 30px var(--mag)}
+    .owner small{color:var(--cyan);letter-spacing:5px;text-transform:uppercase;font-weight:700;font-size:.9rem}
+    .owner strong{font-family:"Pirata One",serif;font-weight:400;font-size:clamp(2.6rem,9vw,4.4rem);line-height:1;background:linear-gradient(90deg,var(--gold),var(--mag),var(--vio));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 20px rgba(255,46,147,.5))}
+    .owner span{color:var(--muted);font-size:1.2rem;letter-spacing:2px}
+
+    footer{position:relative;z-index:2;margin-top:120px;padding:50px 20px 40px;text-align:center;border-top:2px solid var(--mag);background:linear-gradient(180deg,rgba(255,46,147,.1),transparent)}
+    .big{font-family:"Pirata One",serif;font-size:clamp(3.6rem,17vw,11rem);line-height:.9;color:transparent;-webkit-text-stroke:2px rgba(139,92,255,.6);letter-spacing:6px;user-select:none}
+    footer p{color:var(--muted);font-size:.95rem;max-width:620px;margin:12px auto 0}
+    footer .by{color:#fff;font-size:1.1rem}footer .by b{color:var(--gold);font-weight:700}
+    .top{position:fixed;right:18px;bottom:18px;z-index:140;width:50px;height:56px;border:none;cursor:pointer;color:#05030f;font-size:1.3rem;font-weight:700;background:linear-gradient(135deg,var(--cyan),var(--mag));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);opacity:0;pointer-events:none;transition:.3s}
+    .top.show{opacity:1;pointer-events:auto}.top:hover{filter:brightness(1.25)}
+
+    /* ===== LANGUAGE MODAL ===== */
+    .overlay{position:fixed;inset:0;z-index:350;display:none;align-items:center;justify-content:center;padding:18px;background:rgba(3,1,12,.92);backdrop-filter:blur(10px)}
+    .overlay.show{display:flex;animation:fade .4s}
+    @keyframes fade{from{opacity:0}}
+    .box{position:relative;width:100%;max-width:640px;text-align:center;padding:2px;background:linear-gradient(135deg,var(--cyan),var(--vio),var(--mag));--cut:30px;animation:pop .55s cubic-bezier(.2,1.4,.4,1);filter:drop-shadow(0 0 40px rgba(255,46,147,.4))}
+    @keyframes pop{from{transform:scale(.6) rotate(-4deg);opacity:0}}
+    .box .in{--cut:30px;padding:38px 24px 32px;background:linear-gradient(160deg,#170a38,#08041a)}
+    .box .hexic{display:inline-flex;width:70px;height:80px;align-items:center;justify-content:center;font-size:2rem;background:linear-gradient(135deg,var(--cyan),var(--mag));clip-path:polygon(50% 0,100% 25%,100% 75%,50% 100%,0 75%,0 25%);animation:spin 8s linear infinite}
+    .box .hexic span{display:inline-block;animation:spin 8s linear infinite reverse}
+    .box h2{font-size:clamp(1.7rem,6vw,2.3rem);color:#fff;margin:12px 0 2px;text-shadow:0 0 20px var(--vio)}
+    .box .sub2{color:var(--muted);margin-bottom:24px}
+    .opts{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .opt{font:inherit;cursor:pointer;color:var(--text);display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 8px 16px;font-weight:700;font-size:1.1rem;letter-spacing:1px;border:1px solid var(--line);background:rgba(139,92,255,.1);transition:.25s;clip-path:polygon(0 0,calc(100% - 16px) 0,100% 16px,100% 100%,16px 100%,0 calc(100% - 16px))}
+    .opt .flag{font-size:2.6rem;line-height:1}
+    .opt.sel{border-color:var(--gold);background:rgba(255,200,97,.15)}
+    .opt:hover{transform:translateY(-6px);color:#05030f;background:linear-gradient(135deg,var(--cyan),var(--vio))}
+    .x{position:absolute;top:12px;right:16px;z-index:2;background:none;border:none;color:var(--muted);font-size:1.6rem;cursor:pointer;display:none}
+    .overlay.manual .x{display:block}
+
+    @media (max-width:900px){
+      .links{position:fixed;top:78px;left:12px;right:12px;flex-direction:column;padding:12px;border-radius:24px;background:rgba(13,8,32,.97);border:1px solid var(--line);transform:translateY(-140%);transition:transform .35s}
+      .links.open{transform:none}.links a{padding:12px 16px;font-size:1.15rem}
+      .burger{display:block}
+      .hero{grid-template-columns:1fr;text-align:center;padding-top:120px}
+      .hero-sub{margin-inline:auto}.btns{justify-content:center}
+      .about{grid-template-columns:1fr}.head{justify-content:flex-start}
+      .opts{grid-template-columns:1fr}.opt{flex-direction:row;justify-content:center;padding:14px}
+      .hx:nth-child(2n){margin-top:0}
+    }
+    @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.reveal{opacity:1;transform:none;filter:none}}
+  </style>
+</head>
+<body>
+
+  <div class="loader" id="loader"><div class="lh"><span>⚓</span></div></div>
+  <div class="progress" id="progress"></div>
+  <div class="grid-bg"></div><div class="orb o1"></div><div class="orb o2"></div>
+  <div class="parts" id="parts"></div>
+  <div class="cur" id="cur"></div>
+
+  <!-- ===== LANGUAGE MODAL ===== -->
+  <div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="langTitle">
+    <div class="box cut">
+      <button class="x" id="closeLang" aria-label="Close">✕</button>
+      <div class="in cut">
+        <div class="hexic"><span>⚓</span></div>
+        <h2 id="langTitle">Qual linguagem quer colocar?</h2>
+        <p class="sub2">Which language? · ¿Qué idioma?</p>
+        <div class="opts">
+          <button class="opt" data-lang="pt"><span class="flag">🇧🇷</span><span>Português</span></button>
+          <button class="opt" data-lang="en"><span class="flag">🇺🇸</span><span>English</span></button>
+          <button class="opt" data-lang="es"><span class="flag">🇪🇸</span><span>Español</span></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== NAV ===== -->
+  <header class="nav" id="nav">
+    <a href="#home" class="brand"><i>⬡</i>HEX <b>SEAS</b></a>
+    <ul class="links" id="links">
+      <li><a href="#about" data-i18n="nav_about">Sobre</a></li>
+      <li><a href="#features" data-i18n="nav_features">Recursos</a></li>
+      <li><a href="#fruits" data-i18n="nav_fruits">Frutas</a></li>
+      <li><a href="#map" data-i18n="nav_map">Mapa</a></li>
+      <li><a href="#codes" data-i18n="nav_codes">Códigos</a></li>
+      <li><a href="#news" data-i18n="nav_news">Novidades</a></li>
+      <li><a href="#community" data-i18n="nav_community">Comunidade</a></li>
+    </ul>
+    <div class="nav-r">
+      <button class="btn-lang" id="changeLang" aria-label="Language">🌐 <span id="curLang">PT</span></button>
+      <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">☰</button>
+    </div>
+  </header>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="home">
+    <div class="hero-text">
+      <p class="tag" data-i18n="hero_tag">Aventura pirata no Roblox</p>
+      <h1 class="logo" data-text="HEX SEAS">HEX <em>SEAS</em></h1>
+      <div class="rot-wrap"><span id="rot">Navegue sem limites</span></div>
+      <p class="hero-sub" data-i18n="hero_sub">Zarpe rumo ao desconhecido, enfrente monstros dos mares e conquiste o seu lugar entre as lendas.</p>
+      <div class="btns">
+        <a class="btn" href="#about" data-i18n="cta1">Saiba mais</a>
+        <a class="btn ghost" href="https://discord.gg/vPbTABeYM" target="_blank" rel="noopener noreferrer" data-i18n="cta2">Discord</a>
+      </div>
+      <div class="soon-pill" data-i18n="soon">EM BREVE...</div>
+      <p class="nodate" data-i18n="nodate">Data de lançamento: a ser anunciada</p>
+    </div>
+
+    <div class="portal" id="portal" aria-hidden="true">
+      <svg class="ring r1" viewBox="0 0 700 700"><circle cx="350" cy="350" r="335" fill="none" stroke="#8b5cff" stroke-opacity=".6" stroke-width="2" stroke-dasharray="3 16"/><circle cx="350" cy="350" r="318" fill="none" stroke="#2ee6ff" stroke-opacity=".5" stroke-width="7" stroke-dasharray="2 56"/></svg>
+      <svg class="ring r2" viewBox="0 0 700 700"><polygon points="350,12 643,181 643,519 350,688 57,519 57,181" fill="none" stroke="#ff2e93" stroke-opacity=".4" stroke-width="2" stroke-dasharray="14 10"/></svg>
+      <div class="tilt" id="tilt">
+        <svg viewBox="0 0 600 600">
+          <defs>
+            <clipPath id="hx"><polygon points="300,6 566,153 566,447 300,594 34,447 34,153"/></clipPath>
+            <linearGradient id="sk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12062f"/><stop offset=".5" stop-color="#5a1590"/><stop offset=".78" stop-color="#ff2e93"/><stop offset="1" stop-color="#ffc861"/></linearGradient>
+            <linearGradient id="sunG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2a8"/><stop offset=".5" stop-color="#ff9b5c"/><stop offset="1" stop-color="#ff2e93"/></linearGradient>
+            <linearGradient id="seaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3b1a8f"/><stop offset="1" stop-color="#07031a"/></linearGradient>
+            <linearGradient id="edge" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2ee6ff"/><stop offset=".5" stop-color="#8b5cff"/><stop offset="1" stop-color="#ff2e93"/></linearGradient>
+            <mask id="stripes"><rect width="600" height="600" fill="#fff"/><rect y="262" width="600" height="3" fill="#000"/><rect y="275" width="600" height="5" fill="#000"/><rect y="289" width="600" height="7" fill="#000"/><rect y="304" width="600" height="9" fill="#000"/></mask>
+          </defs>
+          <g clip-path="url(#hx)">
+            <rect width="600" height="600" fill="url(#sk)"/>
+            <g fill="#fff"><circle class="star" cx="110" cy="90" r="2"/><circle class="star" cx="200" cy="150" r="1.5"/><circle class="star" cx="470" cy="80" r="2"/><circle class="star" cx="380" cy="60" r="1.5"/><circle class="star" cx="520" cy="170" r="1.8"/><circle class="star" cx="70" cy="200" r="1.6"/><circle class="star" cx="290" cy="40" r="1.4"/></g>
+            <g mask="url(#stripes)"><circle cx="330" cy="260" r="105" fill="url(#sunG)"/></g>
+            <polygon points="30,380 85,325 140,380" fill="#1b0a45"/><polygon points="110,380 150,345 190,380" fill="#240d57"/><polygon points="470,380 520,335 575,380" fill="#1b0a45"/>
+            <rect y="378" width="600" height="230" fill="url(#seaG)"/>
+            <g fill="#ffc861" opacity=".7"><rect x="285" y="390" width="90" height="3"/><rect x="295" y="402" width="70" height="3"/><rect x="305" y="416" width="50" height="4"/><rect x="312" y="432" width="36" height="4"/></g>
+            <g class="wv wv1"><path d="M-200 412 q50 -18 100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 V620 H-200Z" fill="#8b5cff" fill-opacity=".32"/></g>
+            <g class="wv wv2"><path d="M-200 450 q50 -14 100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 t100 0 V620 H-200Z" fill="#2ee6ff" fill-opacity=".16"/></g>
+            <g class="tent">
+              <path d="M575 610 C500 520 595 470 525 400 C475 350 545 300 505 235" fill="none" stroke="#2ee6ff" stroke-opacity=".5" stroke-width="48" stroke-linecap="round"/>
+              <path d="M575 610 C500 520 595 470 525 400 C475 350 545 300 505 235" fill="none" stroke="#1a0640" stroke-width="42" stroke-linecap="round"/>
+              <g fill="#ff2e93"><circle cx="548" cy="545" r="4.5"/><circle cx="553" cy="478" r="4.5"/><circle cx="530" cy="425" r="4.5"/><circle cx="520" cy="372" r="4"/><circle cx="512" cy="318" r="4"/><circle cx="505" cy="268" r="3.5"/></g>
+            </g>
+            <g transform="translate(110 262)"><g class="ship2">
+              <path d="M0 120 H190 C180 150 140 165 95 165 C50 165 10 150 0 120Z" fill="#0d0328"/>
+              <rect x="92" y="0" width="5" height="122" fill="#0d0328"/>
+              <path d="M97 8 C152 30 158 82 97 102Z" fill="#ff2e93" fill-opacity=".92"/>
+              <path d="M92 16 C44 36 40 86 92 106Z" fill="#8b5cff" fill-opacity=".92"/>
+              <path d="M97 0 L132 8 L97 16Z" fill="#2ee6ff"/>
+              <g fill="#ffc861"><circle cx="30" cy="130" r="4"/><circle cx="95" cy="137" r="4"/><circle cx="160" cy="130" r="4"/></g>
+            </g></g>
+          </g>
+          <polygon points="300,6 566,153 566,447 300,594 34,447 34,153" fill="none" stroke="url(#edge)" stroke-width="5"/>
+          <polygon class="edge-run" points="300,6 566,153 566,447 300,594 34,447 34,153" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TICKER ===== -->
+  <div class="ticker" aria-hidden="true">
+    <div class="track">
+      <span data-i18n="soon">EM BREVE...</span><span>⬡</span><span>HEX SEAS</span><span>⬡</span><span data-i18n="soon">EM BREVE...</span><span>⬡</span><span>HEX SEAS</span><span>⬡</span><span data-i18n="soon">EM BREVE...</span><span>⬡</span><span>HEX SEAS</span><span>⬡</span>
+      <span data-i18n="soon">EM BREVE...</span><span>⬡</span><span>HEX SEAS</span><span>⬡</span><span data-i18n="soon">EM BREVE...</span><span>⬡</span><span>HEX SEAS</span><span>⬡</span><span data-i18n="soon">EM BREVE...</span><span>⬡</span><span>HEX SEAS</span><span>⬡</span>
+    </div>
+  </div>
+
+  <main>
+    <!-- 01 ABOUT -->
+    <section class="section" id="about">
+      <div class="head reveal"><span class="num">01</span><h2 class="title" data-i18n="about_title">Sobre o Hex Seas</h2></div>
+      <div class="about">
+        <div class="reveal">
+          <p data-i18n="about_text">Hex Seas é um RPG de aventura pirata em mundo aberto.</p>
+          <div class="chips"><span class="chip" data-i18n="chip1">Mundo aberto</span><span class="chip" data-i18n="chip2">PvE e PvP</span><span class="chip" data-i18n="chip3">Tripulações</span></div>
+        </div>
+        <div class="seal reveal">
+          <svg viewBox="0 0 300 300" style="font-family:'Pirata One',serif">
+            <g class="sr"><circle cx="150" cy="150" r="142" fill="none" stroke="#8b5cff" stroke-width="2" stroke-dasharray="4 12"/><circle cx="150" cy="150" r="128" fill="none" stroke="#2ee6ff" stroke-width="6" stroke-opacity=".6" stroke-dasharray="2 38"/></g>
+            <polygon points="150,22 261,86 261,214 150,278 39,214 39,86" fill="#120833" stroke="#ff2e93" stroke-width="3"/>
+            <polygon points="150,44 242,97 242,203 150,256 58,203 58,97" fill="none" stroke="#8b5cff" stroke-width="1.5"/>
+            <text x="150" y="152" text-anchor="middle" font-size="70" fill="#fff">HEX</text>
+            <text x="150" y="198" text-anchor="middle" font-size="46" fill="#2ee6ff">SEAS</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- 02 FEATURES -->
+    <section class="section" id="features">
+      <div class="head reveal"><span class="num">02</span><h2 class="title" data-i18n="nav_features">Recursos</h2></div>
+      <div class="cards">
+        <article class="card reveal"><div class="edge cut"><div class="in cut"><span class="n">01</span><div class="ic"><span>🧭</span></div><h3 data-i18n="c1_t">Mundo aberto</h3><p data-i18n="c1_d">x</p></div></div></article>
+        <article class="card reveal"><div class="edge cut"><div class="in cut"><span class="n">02</span><div class="ic"><span>🍎</span></div><h3 data-i18n="c2_t">Frutas de poder</h3><p data-i18n="c2_d">x</p></div></div></article>
+        <article class="card reveal"><div class="edge cut"><div class="in cut"><span class="n">03</span><div class="ic"><span>🐙</span></div><h3 data-i18n="c3_t">Monstros marinhos</h3><p data-i18n="c3_d">x</p></div></div></article>
+        <article class="card reveal"><div class="edge cut"><div class="in cut"><span class="n">04</span><div class="ic"><span>⚔️</span></div><h3 data-i18n="c4_t">Estilos de luta</h3><p data-i18n="c4_d">x</p></div></div></article>
+        <article class="card reveal"><div class="edge cut"><div class="in cut"><span class="n">05</span><div class="ic"><span>🚢</span></div><h3 data-i18n="c5_t">Navios e Tripulação</h3><p data-i18n="c5_d">x</p></div></div></article>
+        <article class="card reveal"><div class="edge cut"><div class="in cut"><span class="n">06</span><div class="ic"><span>🏝️</span></div><h3 data-i18n="c6_t">Ilhas e Chefes</h3><p data-i18n="c6_d">x</p></div></div></article>
+      </div>
+    </section>
+
+    <!-- 03 FRUITS -->
+    <section class="section" id="fruits">
+      <div class="head reveal"><span class="num">03</span><h2 class="title" data-i18n="fruits_title">Frutas</h2></div>
+      <p class="lead reveal" data-i18n="fruits_sub">x</p>
+      <div class="reveal">
+        <div class="honey"><div class="hx">🍎</div><div class="hx">🔥</div><div class="hx">❄️</div><div class="hx">☠️</div><div class="hx">⚡</div><div class="hx">🌀</div><div class="hx">🌑</div></div>
+        <span class="soon-line" data-i18n="soon">EM BREVE...</span>
+      </div>
+    </section>
+
+    <!-- 04 MAP -->
+    <section class="section" id="map">
+      <div class="head reveal"><span class="num">04</span><h2 class="title" data-i18n="map_title">Mapa e Ilhas</h2></div>
+      <p class="lead reveal" data-i18n="map_sub">x</p>
+      <div class="reveal">
+        <div class="radar-wrap"><div class="radar">
+          <i class="blip" style="left:22%;top:30%"></i><i class="blip" style="left:68%;top:24%;animation-delay:.8s"></i><i class="blip" style="left:40%;top:62%;animation-delay:1.6s"></i>
+          <i class="blip" style="left:74%;top:68%;animation-delay:2.4s"></i><i class="blip" style="left:14%;top:70%;animation-delay:3.2s"></i>
+        </div></div>
+        <p class="scan" data-i18n="scan">Escaneando ilhas...</p>
+        <span class="soon-line" data-i18n="soon">EM BREVE...</span>
+      </div>
+    </section>
+
+    <!-- 05 CODES -->
+    <section class="section" id="codes">
+      <div class="head reveal"><span class="num">05</span><h2 class="title" data-i18n="codes_title">Códigos</h2></div>
+      <p class="lead reveal" data-i18n="codes_sub">x</p>
+      <div class="term reveal">
+        <div class="bar"><i></i><i></i><i></i></div>
+        <div class="body">
+          <div data-i18n="term1">&gt; abrir_cofre_de_codigos</div>
+          <div class="lock" data-i18n="term2">ACESSO: BLOQUEADO 🔒</div>
+          <div class="st"><span data-i18n="term3">STATUS: EM BREVE</span> <span class="cursor"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 06 NEWS -->
+    <section class="section" id="news">
+      <div class="head reveal"><span class="num">06</span><h2 class="title" data-i18n="news_title">Novidades</h2></div>
+      <p class="lead reveal" data-i18n="news_sub">x</p>
+      <div class="nlist reveal">
+        <div class="nrow"><div class="nth"></div><div class="nbars"><i></i><i></i></div><span class="ntag" data-i18n="soon_s">EM BREVE</span></div>
+        <div class="nrow"><div class="nth"></div><div class="nbars"><i></i><i></i></div><span class="ntag" data-i18n="soon_s">EM BREVE</span></div>
+        <div class="nrow"><div class="nth"></div><div class="nbars"><i></i><i></i></div><span class="ntag" data-i18n="soon_s">EM BREVE</span></div>
+      </div>
+    </section>
+
+    <!-- 07 ROADMAP -->
+    <section class="section" id="roadmap">
+      <div class="head reveal"><span class="num">07</span><h2 class="title" data-i18n="road_title">Roteiro do site</h2></div>
+      <div class="steps reveal">
+        <div class="st done"><small data-i18n="r_done">✔ NO AR</small><span data-i18n="r1">Site e seletor de idiomas</span></div>
+        <div class="st"><small data-i18n="soon_s">EM BREVE</small><span data-i18n="r2">Guia de frutas e poderes</span></div>
+        <div class="st"><small data-i18n="soon_s">EM BREVE</small><span data-i18n="r3">Mapa das ilhas e chefes</span></div>
+        <div class="st"><small data-i18n="soon_s">EM BREVE</small><span data-i18n="r4">Códigos e notícias</span></div>
+      </div>
+    </section>
+
+    <!-- 08 COMMUNITY -->
+    <section class="section" id="community">
+      <div class="head reveal"><span class="num">08</span><h2 class="title" data-i18n="com_title">Comunidade</h2></div>
+      <p class="lead reveal" data-i18n="com_sub">x</p>
+      <div class="soc reveal">
+        <div class="s">🎮 Roblox <small data-i18n="soon_s">EM BREVE</small></div>
+        <a class="s live" href="https://discord.gg/vPbTABeYM" target="_blank" rel="noopener noreferrer">💬 Discord <small data-i18n="join">ENTRAR</small></a>
+      </div>
+    </section>
+
+    <!-- OWNER -->
+    <section class="section" id="owner">
+      <div class="owner reveal">
+        <div class="badge">
+          <svg viewBox="0 0 150 150"><polygon points="75,4 139,40 139,110 75,146 11,110 11,40" fill="none" stroke="#2ee6ff" stroke-width="2" stroke-dasharray="6 8"/></svg>
+          <b>⚓</b>
+        </div>
+        <small data-i18n="credit_by">Dono e criador do jogo</small>
+        <strong>AimGodAdry</strong>
+        <span>Adryel Lins</span>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="big" aria-hidden="true">HEX SEAS</div>
+    <p class="by"><span data-i18n="credit_foot">Dono e criador:</span> <b>AimGodAdry</b> (Adryel Lins)</p>
+    <p data-i18n="footer">© 2026 Hex Seas.</p>
+  </footer>
+
+  <button class="top" id="top" aria-label="Top">↑</button>
+
+  <script>
+  const T = {
+    pt:{
+      nav_about:"Sobre",nav_features:"Recursos",nav_fruits:"Frutas",nav_map:"Mapa",nav_codes:"Códigos",nav_news:"Novidades",nav_community:"Comunidade",
+      hero_tag:"Aventura pirata no Roblox",rw1:"Navegue sem limites",rw2:"Enfrente monstros marinhos",rw3:"Conquiste os mares",
+      hero_sub:"Zarpe rumo ao desconhecido, enfrente monstros dos mares e conquiste o seu lugar entre as lendas.",
+      soon:"EM BREVE...",soon_s:"EM BREVE",cta1:"Saiba mais",cta2:"Entrar no Discord",join:"ENTRAR",nodate:"Data de lançamento: a ser anunciada",
+      about_title:"Sobre o Hex Seas",
+      about_text:"Hex Seas é um RPG de aventura pirata em mundo aberto. Escolha seu caminho, domine poderes lendários, monte sua tripulação e navegue por mares misteriosos cheios de ilhas, tesouros, chefes e batalhas épicas em PvE e PvP.",
+      chip1:"Mundo aberto",chip2:"PvE e PvP",chip3:"Tripulações",
+      c1_t:"Mundo aberto",c1_d:"Navegue livremente por mares e ilhas cheios de segredos para descobrir.",
+      c2_t:"Frutas de poder",c2_d:"Habilidades únicas que transformam o seu jeito de lutar.",
+      c3_t:"Monstros marinhos",c3_d:"Criaturas gigantes surgem do oceano e desafiam até os mais fortes.",
+      c4_t:"Estilos de luta",c4_d:"Espadas, punhos, armas e poderes: monte o seu próprio estilo.",
+      c5_t:"Navios e Tripulação",c5_d:"Tenha seu navio, reúna aliados e forme sua tripulação.",
+      c6_t:"Ilhas e Chefes",c6_d:"Missões, tesouros e chefes cada vez mais fortes em cada ilha.",
+      fruits_title:"Frutas",fruits_sub:"Todos os poderes, raridades e como conseguir cada um.",
+      map_title:"Mapa e Ilhas",map_sub:"Ilhas, níveis, chefes e a melhor ordem para evoluir.",scan:"Escaneando ilhas...",
+      codes_title:"Códigos",codes_sub:"Códigos ativos para ganhar bônus no jogo.",
+      term1:"> abrir_cofre_de_codigos",term2:"ACESSO: BLOQUEADO 🔒",term3:"STATUS: EM BREVE",
+      news_title:"Novidades",news_sub:"Notícias e atualizações do jogo e do site.",
+      road_title:"Roteiro do site",r_done:"✔ NO AR",r1:"Site e seletor de idiomas",r2:"Guia de frutas e poderes",r3:"Mapa das ilhas e chefes",r4:"Códigos e notícias",
+      com_title:"Comunidade",com_sub:"Entre no nosso Discord oficial e acompanhe todas as novidades do Hex Seas.",
+      credit_by:"Dono e criador do jogo",credit_foot:"Dono e criador:",
+      footer:"© 2026 Hex Seas. Todos os direitos reservados. Roblox é marca da Roblox Corporation; este jogo não é afiliado a ela."
+    },
+    en:{
+      nav_about:"About",nav_features:"Features",nav_fruits:"Fruits",nav_map:"Map",nav_codes:"Codes",nav_news:"News",nav_community:"Community",
+      hero_tag:"Pirate adventure on Roblox",rw1:"Sail without limits",rw2:"Face the sea monsters",rw3:"Conquer the seas",
+      hero_sub:"Set sail into the unknown, face the monsters of the deep and carve your name among the legends.",
+      soon:"COMING SOON...",soon_s:"SOON",cta1:"Learn more",cta2:"Join Discord",join:"JOIN",nodate:"Release date: to be announced",
+      about_title:"About Hex Seas",
+      about_text:"Hex Seas is an open-world pirate adventure RPG. Choose your path, master legendary powers, assemble your crew and sail mysterious seas full of islands, treasure, bosses and epic PvE and PvP battles.",
+      chip1:"Open world",chip2:"PvE & PvP",chip3:"Crews",
+      c1_t:"Open world",c1_d:"Sail freely across seas and islands full of secrets to discover.",
+      c2_t:"Power fruits",c2_d:"Unique abilities that transform the way you fight.",
+      c3_t:"Sea monsters",c3_d:"Giant creatures rise from the ocean and challenge even the strongest.",
+      c4_t:"Fighting styles",c4_d:"Swords, fists, guns and powers: build your own style.",
+      c5_t:"Ships & Crews",c5_d:"Get your own ship, gather allies and form your crew.",
+      c6_t:"Islands & Bosses",c6_d:"Quests, treasure and ever stronger bosses on every island.",
+      fruits_title:"Fruits",fruits_sub:"Every power, rarity and how to get each one.",
+      map_title:"Map & Islands",map_sub:"Islands, levels, bosses and the best order to level up.",scan:"Scanning islands...",
+      codes_title:"Codes",codes_sub:"Active codes to earn in-game bonuses.",
+      term1:"> open_code_vault",term2:"ACCESS: LOCKED 🔒",term3:"STATUS: COMING SOON",
+      news_title:"News",news_sub:"News and updates about the game and the site.",
+      road_title:"Site roadmap",r_done:"✔ LIVE",r1:"Site and language picker",r2:"Fruit and powers guide",r3:"Island map and bosses",r4:"Codes and news",
+      com_title:"Community",com_sub:"Join our official Discord and follow all the Hex Seas news.",
+      credit_by:"Game owner & creator",credit_foot:"Owner & creator:",
+      footer:"© 2026 Hex Seas. All rights reserved. Roblox is a trademark of Roblox Corporation; this game is not affiliated with it."
+    },
+    es:{
+      nav_about:"Acerca de",nav_features:"Recursos",nav_fruits:"Frutas",nav_map:"Mapa",nav_codes:"Códigos",nav_news:"Novedades",nav_community:"Comunidad",
+      hero_tag:"Aventura pirata en Roblox",rw1:"Navega sin límites",rw2:"Enfrenta monstruos marinos",rw3:"Conquista los mares",
+      hero_sub:"Zarpa hacia lo desconocido, enfrenta a los monstruos del mar y gana tu lugar entre las leyendas.",
+      soon:"PRÓXIMAMENTE...",soon_s:"PRONTO",cta1:"Saber más",cta2:"Unirse al Discord",join:"UNIRSE",nodate:"Fecha de lanzamiento: por anunciar",
+      about_title:"Sobre Hex Seas",
+      about_text:"Hex Seas es un RPG de aventura pirata de mundo abierto. Elige tu camino, domina poderes legendarios, forma tu tripulación y navega mares misteriosos llenos de islas, tesoros, jefes y épicas batallas PvE y PvP.",
+      chip1:"Mundo abierto",chip2:"PvE y PvP",chip3:"Tripulaciones",
+      c1_t:"Mundo abierto",c1_d:"Navega libremente por mares e islas llenos de secretos por descubrir.",
+      c2_t:"Frutas de poder",c2_d:"Habilidades únicas que transforman tu forma de pelear.",
+      c3_t:"Monstruos marinos",c3_d:"Criaturas gigantes emergen del océano y desafían a los más fuertes.",
+      c4_t:"Estilos de pelea",c4_d:"Espadas, puños, armas y poderes: crea tu propio estilo.",
+      c5_t:"Barcos y Tripulación",c5_d:"Consigue tu barco, reúne aliados y forma tu tripulación.",
+      c6_t:"Islas y Jefes",c6_d:"Misiones, tesoros y jefes cada vez más fuertes en cada isla.",
+      fruits_title:"Frutas",fruits_sub:"Todos los poderes, rarezas y cómo conseguir cada uno.",
+      map_title:"Mapa e Islas",map_sub:"Islas, niveles, jefes y el mejor orden para subir de nivel.",scan:"Escaneando islas...",
+      codes_title:"Códigos",codes_sub:"Códigos activos para ganar bonos en el juego.",
+      term1:"> abrir_cofre_de_codigos",term2:"ACCESO: BLOQUEADO 🔒",term3:"ESTADO: PRÓXIMAMENTE",
+      news_title:"Novedades",news_sub:"Noticias y actualizaciones del juego y del sitio.",
+      road_title:"Hoja de ruta del sitio",r_done:"✔ ACTIVO",r1:"Sitio y selector de idioma",r2:"Guía de frutas y poderes",r3:"Mapa de islas y jefes",r4:"Códigos y noticias",
+      com_title:"Comunidad",com_sub:"Únete a nuestro Discord oficial y sigue todas las novedades de Hex Seas.",
+      credit_by:"Dueño y creador del juego",credit_foot:"Dueño y creador:",
+      footer:"© 2026 Hex Seas. Todos los derechos reservados. Roblox es marca de Roblox Corporation; este juego no está afiliado a ella."
+    }
+  };
+  const HL = {pt:"pt-BR",en:"en",es:"es"};
+  const $ = s => document.querySelector(s);
+  let curL = "pt", ri = 0;
+  const overlay = $("#overlay");
+
+  function setLang(l){
+    curL = T[l] ? l : "pt";
+    const d = T[curL];
+    document.querySelectorAll("[data-i18n]").forEach(el=>{ const v=d[el.dataset.i18n]; if(v) el.textContent=v; });
+    $("#rot").textContent = d["rw"+(ri+1)];
+    document.documentElement.lang = HL[curL];
+    $("#curLang").textContent = curL.toUpperCase();
+    document.querySelectorAll(".opt").forEach(b=>b.classList.toggle("sel", b.dataset.lang===curL));
+    try{ localStorage.setItem("hs_lang", curL); }catch(e){}
+  }
+  const today = ()=>{const d=new Date();return d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate();};
+  function openLang(manual){ overlay.classList.toggle("manual", !!manual); overlay.classList.add("show"); }
+  function closeLang(){ overlay.classList.remove("show"); }
+
+  document.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>{
+    setLang(b.dataset.lang);
+    try{ localStorage.setItem("hs_day", today()); }catch(e){}
+    closeLang();
+  }));
+  $("#changeLang").addEventListener("click",()=>openLang(true));
+  $("#closeLang").addEventListener("click",closeLang);
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape" && overlay.classList.contains("manual")) closeLang(); });
+
+  let lang="pt", day=null;
+  try{ lang=localStorage.getItem("hs_lang")||"pt"; day=localStorage.getItem("hs_day"); }catch(e){}
+  setLang(lang);
+
+  // Loader, then ask the language once per day
+  window.addEventListener("load",()=>{
+    setTimeout(()=>{ $("#loader").classList.add("hide"); if(day!==today()) openLang(false); }, 800);
+  });
+
+  // Rotating hero phrase
+  setInterval(()=>{
+    const el=$("#rot"); el.classList.add("out");
+    setTimeout(()=>{ ri=(ri+1)%3; el.textContent=T[curL]["rw"+(ri+1)]; el.classList.remove("out"); },350);
+  }, 2800);
+
+  // Mobile menu
+  const links=$("#links"), burger=$("#burger");
+  burger.addEventListener("click",()=>{ const o=links.classList.toggle("open"); burger.setAttribute("aria-expanded",o); burger.textContent=o?"✕":"☰"; });
+  links.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{ links.classList.remove("open"); burger.textContent="☰"; }));
+
+  // Scroll effects
+  const nav=$("#nav"), prog=$("#progress"), topBtn=$("#top");
+  const secs=[...document.querySelectorAll("main section")], navA=[...links.querySelectorAll("a")];
+  function onScroll(){
+    const y=scrollY, h=document.documentElement.scrollHeight-innerHeight;
+    prog.style.width=(h>0?y/h*100:0)+"%";
+    nav.classList.toggle("small", y>40);
+    topBtn.classList.toggle("show", y>700);
+    let cur=""; secs.forEach(s=>{ if(y+170>=s.offsetTop) cur=s.id; });
+    navA.forEach(a=>a.classList.toggle("active", a.getAttribute("href")==="#"+cur));
+  }
+  addEventListener("scroll",onScroll,{passive:true}); onScroll();
+  topBtn.addEventListener("click",()=>scrollTo({top:0,behavior:"smooth"}));
+
+  // Reveal on scroll
+  const io=new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} }),{threshold:.12});
+  document.querySelectorAll(".reveal").forEach((el,i)=>{ el.style.transitionDelay=(i%3)*90+"ms"; io.observe(el); });
+
+  // 3D tilt on the hexagon portal
+  const portal=$("#portal"), tilt=$("#tilt");
+  $("#home").addEventListener("mousemove",e=>{
+    const r=portal.getBoundingClientRect();
+    const x=(e.clientX-(r.left+r.width/2))/innerWidth, y=(e.clientY-(r.top+r.height/2))/innerHeight;
+    tilt.style.transform=`rotateY(${x*26}deg) rotateX(${-y*26}deg)`;
+  });
+  $("#home").addEventListener("mouseleave",()=>tilt.style.transform="");
+
+  // Floating hex particles
+  const pw=$("#parts"), cols=["rgba(255,46,147,.35)","rgba(46,230,255,.3)","rgba(139,92,255,.35)"];
+  for(let i=0;i<20;i++){
+    const h=document.createElement("span"); h.className="hp";
+    const s=14+Math.random()*40; h.style.width=s+"px"; h.style.height=s*1.12+"px";
+    h.style.left=Math.random()*100+"%"; h.style.background=cols[i%3];
+    h.style.animationDuration=14+Math.random()*18+"s"; h.style.animationDelay=-Math.random()*25+"s";
+    pw.appendChild(h);
+  }
+
+  // Hex cursor follower (desktop only)
+  if(matchMedia("(pointer:fine)").matches){
+    const cur=$("#cur"); let tx=0,ty=0,x=0,y=0;
+    addEventListener("mousemove",e=>{ tx=e.clientX; ty=e.clientY; cur.style.opacity=.75; });
+    (function loop(){ x+=(tx-x)*.18; y+=(ty-y)*.18; cur.style.transform=`translate(${x-11}px,${y-12}px)`; requestAnimationFrame(loop); })();
+    document.querySelectorAll("a,button,.card,.opt").forEach(el=>{
+      el.addEventListener("mouseenter",()=>{cur.style.width="40px";cur.style.height="46px";});
+      el.addEventListener("mouseleave",()=>{cur.style.width="22px";cur.style.height="25px";});
+    });
+  }
+  </script>
+</body>
+</html>
